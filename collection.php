@@ -51,8 +51,18 @@
     background-position: 10px center;
   }
 
-  .good-btn{
+  .good-btn-off{
     background: url(https://www.printbakery.com/images/button/prd_good_off_btn.png) no-repeat;
+    width:35px;
+    height:35px;
+    border: none;
+    opacity: 0.7;
+    outline: none;
+    background-position: 10px center;
+  }
+
+  .good-btn-on{
+    background: url(https://www.printbakery.com/images/button/prd_good_on_btn.png) no-repeat;
     width:35px;
     height:35px;
     border: none;
@@ -181,7 +191,7 @@ document.getElementById(param).classList.add('textdecoration2');
               <div class="card-body">
                 <div class="container-fluid">
                   <div class="row">
-                    <div class="col-md-2 mr-2 pr-2 pl-1">
+                    <div class="col-md-2 mr-2 pr-2 pl-1 mt-1">
                       <img src="./database/artists/'. $artist_photo .'" class="artist-img rounded-circle card-text" alt="'.$artist_name.'">
                     </div>
                     <div class="col-md-9 ml-2">
@@ -189,18 +199,19 @@ document.getElementById(param).classList.add('textdecoration2');
                       <p class="card-text">'.$artist_name.'<br><small class="text-muted">Limited edition: '.$edition .'</small></p>
                     </div>
                   </div>
+                  </a>
                   <div class="row">
-                    <div class="col-md-6 text-right">
+                    <div class="col-md-6 text-center mt-1" style="font-size:x-large; color:gray;">
+                    &#8361 '.$price.'
                     </div>
                     <div class="col-md-6 text-right">
-                      <button type="button" name="'.$art_id.'" id="cart_'.$art_id.'" class="to-cart-btn"></button>
-                      <button type="button" name="'.$art_id.'" id="good_'.$art_id.'" class="good-btn"></button>
+                      <button type="button" name="good_btn" data-id="'.$art_id.'" class="good-btn-off" style="margin-top:5px;"></button>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            </a>
+
           </div>
             ';
           if($num%3 ==0){
@@ -213,104 +224,12 @@ document.getElementById(param).classList.add('textdecoration2');
             <div class="row">
             ';//3번째 애는 row를 닫고 여는 역할을 해야한다.
           }
-      //   }
-      // }
-      //
+
         }
         echo "".$output;
       }
       //
        ?>
-
-
-
-      <!-- one card start -->
-      <!-- <div class="col-md-4">
-        <div class="card shadow">
-          <img class="card-img" src="./images/dummy_picture.png" alt="Card image cap">
-          <div class="card-body">
-            <div class="container-fluid">
-              <div class="row">
-                <div class="col-md-2 mr-2 pr-2 pl-1">
-                  <img src="https://i.ibb.co/yqVK65H/image.png" class="artist-img rounded-circle card-text" alt="ahn sohyun">
-                </div>
-                <div class="col-md-9 ml-2">
-                  <h6 class="card-title">모과와 선인장</h6>
-                  <p class="card-text">Ahn Sohuyun (안소현) <br><small class="text-muted">Limited edition: 99</small></p>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-6 text-right">
-                </div>
-                <div class="col-md-6 text-right">
-                  <button type="button" name="button" class="to-cart-btn"></button>
-                  <button type="button" name="button" class="good-btn"></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> -->
-      <!-- one card end -->
-
-      <!-- one card start -->
-      <!-- <div class="col-md-4">
-        <div class="card shadow">
-          <img class="card-img" src="https://i.ibb.co/CwNhKNj/20190717-183034.png" alt="Card image cap">
-          <div class="card-body">
-            <div class="container-fluid">
-              <div class="row">
-                <div class="col-md-2 mr-2 pr-2 pl-1">
-                  <img src="https://i.ibb.co/yR6MMX8/image.png" class="artist-img rounded-circle card-text" alt="ahn sohyun">
-                </div>
-                <div class="col-md-9 ml-2">
-                  <h6 class="card-title">Hidden Place</h6>
-                  <p class="card-text">Jang Koal (장콸) <br><small class="text-muted">Limited edition: 99</small></p>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-6 text-right">
-                </div>
-                <div class="col-md-6 text-right">
-                  <button type="button" name="button" class="to-cart-btn"></button>
-                  <button type="button" name="button" class="good-btn"></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> -->
-      <!-- one card end -->
-
-      <!-- one card start -->
-      <!-- <div class="col-md-4">
-        <div class="card shadow">
-          <img class="card-img" src="https://i.ibb.co/fQ9ZdN9/20190717-183239.png" alt="Card image cap">
-          <div class="card-body">
-            <div class="container-fluid">
-              <div class="row">
-                <div class="col-md-2 mr-2 pr-2 pl-1">
-                  <img src="https://i.ibb.co/ngBvNDG/image.png" class="artist-img rounded-circle card-text" alt="ahn sohyun">
-                </div>
-                <div class="col-md-9 ml-2">
-                  <h6 class="card-title">말과 글12- 나의 아뜰리에</h6>
-                  <p class="card-text">You SunTai (유선태) <br><small class="text-muted">Limited edition: 99</small></p>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-6 text-right">
-                </div>
-                <div class="col-md-6 text-right">
-                  <button type="button" name="button" class="to-cart-btn"></button>
-                  <button type="button" name="button" class="good-btn"></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> -->
-      <!-- one card end -->
-
       </div>
       <div class="row">
         <div class="col-md-12">
@@ -319,7 +238,35 @@ document.getElementById(param).classList.add('textdecoration2');
       </div>
     </div>
   </div>
+  <script type="text/javascript">
+  $('button[name="good_btn"]').click(function(){
+    var item_id = $(this).data('id');
+    var like = ""
+    //alert(item_id);
+    if($(this).hasClass('good-btn-off')){
+      $(this).attr('class','good-btn-on');
+      like = "yes";
+    }else{
+      $(this).attr('class','good-btn-off');
+      like = "no";
+    }
 
+    $.ajax({
+        async: true,
+        type : 'GET',
+        data : {'item_id':  item_id, 'like': like},
+        url : "/likeprocess.php",
+        dataType : "text",
+        contentType: "application/json; charset=UTF-8",
+        success : function(data) {
+
+        },
+        error : function(error) {
+            console.log("error : " + error);
+        }
+      });
+  });
+  </script>
 <?php include 'footer.php';?>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>

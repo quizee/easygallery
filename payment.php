@@ -19,7 +19,7 @@ $delivery_require = $_POST['delivery_require'];
 $state = "배송 준비중";
 $cancel = "";
 $done = "";
-
+echo $pay_person;
 //장바구니에 있는 것들 한바퀴 돌면서 주문 리스트를 채운다.
 $select_sql = "select id, name, photo, price, count from carts left join arts on carts.product_id = arts.id where user_id ='".$_SESSION['email']."';";
 $result = mysqli_query($conn, $select_sql);

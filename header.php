@@ -56,7 +56,7 @@
                     <a class="nav-link text-white" href="#">마이컬렉션</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link text-white" href="orderlist.php">주문조회</a>
+                    <a class="nav-link text-white" href="orderlist.php?page=0">주문조회</a>
                   </li>
                 </ul>
               </div>

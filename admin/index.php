@@ -44,7 +44,7 @@
         include "review.php";
         break;
       case "theme":
-        include "theme.php";
+        include "testcomment.php";
         break;
       default :
         include "member.php";

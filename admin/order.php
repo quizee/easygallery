@@ -86,7 +86,7 @@
     return [year, month, day].join('-');
   }
     $(function(){
-      $('button[name="date_btn"]').click(function(){
+      $('button[name="date_btn"]').click(function(){//오늘, 1주일, 1달 눌렀을 때 날짜 보이는 부분 업데이트하는 리스너
         var now = new Date();
         var period = $(this).attr('id');
 
