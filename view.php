@@ -467,7 +467,7 @@ if(mysqli_num_rows($result2)>0){
           <div class="col-md-1"></div>
           <div class="col-md-3 ml-5">
             <img src="./database/asset/glass.png" alt="glass" style="width: 100%; height:300px;">
-            <p><br>작품 전면은글라스로 제작되어 긁힘에 민감하오니 작품 표면에 손상이 가지 않도록 주의해주십시오.<br></p>
+            <p><br>작품 전면은 글라스로 제작되어 긁힘에 민감하오니 작품 표면에 손상이 가지 않도록 주의해주십시오.<br></p>
           </div>
           <div class="col-md-3 ml-3">
             <img src="./database/asset/temp.png" alt="temp" style="width: 100%; height:300px;">

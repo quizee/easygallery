@@ -4,7 +4,6 @@
   }
 </script>
 <?php
-
     if(!isset($_SESSION['email'])) {//아직 로그인상태가 아닐 때
         echo '<div class="header bg-dark py-5">
           <div class="container">
@@ -53,7 +52,7 @@
                     <a class="nav-link text-white" href="baskettest.php">장바구니</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link text-white" href="#">마이컬렉션</a>
+                    <a class="nav-link text-white" href="mycollection.php">마이컬렉션</a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link text-white" href="orderlist.php?page=0">주문조회</a>

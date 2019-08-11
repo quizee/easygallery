@@ -126,6 +126,7 @@ document.getElementById(param).classList.add('textdecoration2');
     </div>
     </div>
 
+
     <!---->
     <div class="row">
       <?php
@@ -135,6 +136,7 @@ document.getElementById(param).classList.add('textdecoration2');
       $password = "1234";
       // Create connection
       $conn = mysqli_connect($servername, $username, $password,"my_db");
+      //$conn2 = mysqli_connect($servername, $username, $password,"my_db");
       // Check connection
       if (!$conn) {
         die("Connection failed: " . mysqli_connect_error());
@@ -158,15 +160,11 @@ document.getElementById(param).classList.add('textdecoration2');
           artist_name, artist_photo from arts left join artists on arts.artist_id = artists.artist_id order by id desc;";
           break;
       }
-      //$sql = "select * from artists";
-      //echo "sql: ".$sql." ";
+
       $result = mysqli_query($conn,$sql);
       mysqli_store_result($conn);
       $output = '';
-      //echo "result: ".$result;
-      //echo $sql;
 
-     //
       if(mysqli_num_rows($result)>0){
         $num = 0;
         while($row = mysqli_fetch_assoc($result)){
@@ -181,8 +179,15 @@ document.getElementById(param).classList.add('textdecoration2');
           $artist_name = $row["artist_name"];
           $artist_photo = $row["artist_photo"];
           $href_link = "view.php?artid=".$art_id."&artistid=".$artist_id;
-          //$isitclickable = "isitClickable?";
-          //echo $art_name." ".$artist_name;
+
+          $good_class ="";
+          $good_sql = "select * from likes where user_id ='".$_SESSION['email']."' and product_id='$art_id';";
+          if(mysqli_num_rows(mysqli_query($conn,$good_sql))>0){
+            $good_class="good-btn-on";
+          }else{
+            $good_class="good-btn-off";
+          }
+
           $output .='
           <div class="col-md-4">
           <a href="'.$href_link.'" class="custom-card">
@@ -205,7 +210,7 @@ document.getElementById(param).classList.add('textdecoration2');
                     &#8361 '.$price.'
                     </div>
                     <div class="col-md-6 text-right">
-                      <button type="button" name="good_btn" data-id="'.$art_id.'" class="good-btn-off" style="margin-top:5px;"></button>
+                      <button type="button" name="good_btn" data-id="'.$art_id.'" class="'.$good_class.'" style="margin-top:5px;"></button>
                     </div>
                   </div>
                 </div>
@@ -240,31 +245,44 @@ document.getElementById(param).classList.add('textdecoration2');
   </div>
   <script type="text/javascript">
   $('button[name="good_btn"]').click(function(){
-    var item_id = $(this).data('id');
-    var like = ""
-    //alert(item_id);
-    if($(this).hasClass('good-btn-off')){
-      $(this).attr('class','good-btn-on');
-      like = "yes";
+    var login =
+    <?php
+    if(isset($_SESSION['email'])){
+      echo 'true';
     }else{
-      $(this).attr('class','good-btn-off');
-      like = "no";
+      echo 'false';
+    }
+    ?>;
+    if(login){
+      var item_id = $(this).data('id');
+      var like = "" //ajax를 통해 바뀌었으면 하는 값(바뀐 결과)을 저장한다.
+      //alert(item_id);
+      if($(this).hasClass('good-btn-off')){
+        $(this).attr('class','good-btn-on');
+        like = "yes";
+      }else{
+        $(this).attr('class','good-btn-off');
+        like = "no";
+      }//클래스를 바꾸어 색깔을 바꾼다.
+
+      $.ajax({//아이템 아이디와 바뀌었으면 하는 결과를 받아서 반영하는 ajax
+          async: true,
+          type : 'GET',
+          data : {'item_id':  item_id, 'like': like},
+          url : "/likeprocess.php",
+          dataType : "text",
+          contentType: "application/json; charset=UTF-8",
+          success : function(data) {
+            //alert(data);
+          },
+          error : function(error) {
+              console.log("error : " + error);
+          }
+        });
+    }else{
+      alert('좋아요는 로그인 후 이용할 수 있습니다.')
     }
 
-    $.ajax({
-        async: true,
-        type : 'GET',
-        data : {'item_id':  item_id, 'like': like},
-        url : "/likeprocess.php",
-        dataType : "text",
-        contentType: "application/json; charset=UTF-8",
-        success : function(data) {
-
-        },
-        error : function(error) {
-            console.log("error : " + error);
-        }
-      });
   });
   </script>
 <?php include 'footer.php';?>
