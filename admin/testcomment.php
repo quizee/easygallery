@@ -52,3 +52,16 @@ $(function(){
     </div>
   </div>
 </div>
+<table class="table">
+  <tr style = "padding-left:10px;">
+    <td>아</td>
+    <td>dk</td>
+  </tr>
+  <tr style = "padding-left:20px;">
+    <td>아</td>
+    <td>dk</td>
+  </tr>
+</table>
+<table class="table">
+
+</table>

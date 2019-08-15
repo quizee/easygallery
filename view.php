@@ -638,11 +638,7 @@ if(mysqli_num_rows($result2)>0){
           $review_photo = $row['photo'];
           $review_text = $row['text'];
           $review_id = $row['order_id'];
-          // if(strlen($review_text)>24){
-          //   $show_text = substr($review_text,0,24)."...";
-          // }else{
-          //   $show_text = $review_text;
-          // }
+
           $review_like = $row['like_review'];
 
           echo '<div class="col-md-3">
@@ -722,16 +718,13 @@ if(mysqli_num_rows($result2)>0){
           </div>
           <div class="row">
             <div id="admin-comment" class="collapse col-md-12">
-              <div class="container">
-                <div class="row">
-                  <div class="col-md-3 text-center">
-                    admin
-                  </div>
-                  <div class="col-md-9">
-                    안녕하세요
-                  </div>
-                </div>
-              </div>
+                <table style="width:100%;" class="table">
+                  <tr>
+                    <td style="width:10%;" class="text-center">admin</td>
+                    <td style="width:70%; margin-left:5px;">어쩌구 저쩌s</td>
+                    <td style="width:20%;" class="text-center">답글달기</td>
+                  </tr>
+                </table>
             </div>
           </div>
         </div>

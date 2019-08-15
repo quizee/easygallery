@@ -1,12 +1,21 @@
 <?php
+session_start();
+
 $servername = "localhost";
 $username = "root";
 $password = "1234";
 // Create connection
 $conn = mysqli_connect($servername, $username, $password,"my_db");
 
+$comment_id = $_GET['comment_id'];
+$comment_text = $_GET['comment_text'];
 $review_id = $_GET['review_id'];
 
+//수정된 내용을 반영한다.
+$modify_sql = "update comments set comment_text = '$comment_text' where comment_id=$comment_id;";
+mysqli_query($conn,$modify_sql);
+
+//수정된 결과를 반영하는 전체 댓글을 다시 불러온다.
 $get_comment = "select * from comments where review_id='".$review_id."' order by grp asc, seq asc, depth desc;";
 //grp으로 먼저 정렬하고 grp이 같으면 seq로 정렬한다.
 $result = mysqli_query($conn,$get_comment);
@@ -50,4 +59,6 @@ if(mysqli_num_rows($result)>0){
     echo $output;
   }
 }
-?>
+
+
+ ?>

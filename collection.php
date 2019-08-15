@@ -115,7 +115,7 @@ document.getElementById(param).classList.add('textdecoration2');
   <ul class="list-inline ">
     <li class="list-inline-item"><button class="btn border-right" type="button" id="recent" name="button" onclick="javascript:clickinner(this,'recent');">최신순</button></li>
     <li class="list-inline-item"><button class="btn border-right" type="button"  id="best" name="button" onclick="javascript:clickinner(this,'best');">인기순</button></li>
-    <li class="list-inline-item"><button class="btn border-right" type="button"  id="price"name="button" onclick="javascript:clickinner(this,'price');">낮은 가격순</button></li>
+    <li class="list-inline-item"><button class="btn" type="button"  id="price"name="button" onclick="javascript:clickinner(this,'price');">낮은 가격순</button></li>
   </ul>
 </div>
 <div class="card-deck">
@@ -144,19 +144,19 @@ document.getElementById(param).classList.add('textdecoration2');
       //디비에 일단 연결한다.
       switch($_GET['order']){
         case "recent":
-          $sql = "select id, name, photo, price, buy_count, edition, arts.artist_id,
+          $sql = "select id, name, photo, price, like_count, buy_count, edition, arts.artist_id,
           artist_name, artist_photo from arts left join artists on arts.artist_id = artists.artist_id order by id desc;";
           break;
         case "best":
           $sql = "select id, name, photo, price, buy_count, like_count, edition, arts.artist_id, artist_name, artist_photo
-          from arts left join artists on arts.artist_id = artists.artist_id order by buy_count desc;";
+          from arts left join artists on arts.artist_id = artists.artist_id order by buy_count+like_count desc;";
           break;
         case "price":
           $sql = "select id, name, photo, price, buy_count, like_count, edition, arts.artist_id,
           artist_name, artist_photo from arts left join artists on arts.artist_id = artists.artist_id order by price;";
           break;
         default :
-          $sql = "select id, name, photo, price, buy_count, edition, arts.artist_id,
+          $sql = "select id, name, photo, price, buy_count, like_count, edition, arts.artist_id,
           artist_name, artist_photo from arts left join artists on arts.artist_id = artists.artist_id order by id desc;";
           break;
       }
@@ -174,6 +174,7 @@ document.getElementById(param).classList.add('textdecoration2');
           $art_photo = $row["photo"];
           $price = $row["price"];
           $buy_count = $row["buy_count"];
+          $like_count = $row["like_count"];
           $edition = $row["edition"];
           $artist_id= $row["artist_id"];
           $artist_name = $row["artist_name"];
@@ -211,6 +212,7 @@ document.getElementById(param).classList.add('textdecoration2');
                     </div>
                     <div class="col-md-6 text-right">
                       <button type="button" name="good_btn" data-id="'.$art_id.'" class="'.$good_class.'" style="margin-top:5px;"></button>
+                      <small style="padding:0px; margin-top:5px;" data-id="'.$art_id.'">'.$like_count.'</small>
                     </div>
                   </div>
                 </div>
@@ -273,7 +275,7 @@ document.getElementById(param).classList.add('textdecoration2');
           dataType : "text",
           contentType: "application/json; charset=UTF-8",
           success : function(data) {
-            //alert(data);
+            $('small[data-id="'+item_id+'"]').text(data);
           },
           error : function(error) {
               console.log("error : " + error);

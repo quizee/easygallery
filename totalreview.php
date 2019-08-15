@@ -1,5 +1,5 @@
+<!DOCTYPE html>
 <?php session_start();
-
 //로그인할때마다 다른 사람이름으로 바뀐다.
 $writer_id = $_SESSION['email'];
 //어떤 리뷰 게시물에 들어왔다고 가정하자.
@@ -14,35 +14,53 @@ mysqli_store_result($conn2);
 $row = mysqli_fetch_assoc($result);
 $writer_name = $row['name'];//위의 이메일에 따라 글쓴이 이름을 미리 마련해놓는다.
  ?>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="import" href="header.html">
+
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>title</title>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <?php include ('header.php');?>
+</head>
+
+<body>
+<!--여기부터 시작 -->
 <div class="container-fluid">
-  <form action="" id="order_search_frm" method="get">
-  <table class = "table">
-    <tr>
-      <th>조회 기간</th>
-      <td> <input type="date" id = "from" name="from" value=""> ~ <input type="date" id="to" name="to" value="">
-        <button type="button" name="date_btn" id="today" class = "ml-5">오늘</button>
-        <button type="button" name="date_btn" id="week">1주일</button>
-        <button type="button" name="date_btn" id="month">1개월</button>
-        <button type="button" name="date_btn" id="wholeday">전체</button>
-    </tr>
-    <tr>
-      <th>상품명</th>
-      <td> <input type="text" name="product_search" value="" placeholder="상품명으로 검색">
-        <button type="button" name="button" class="btn btn-dark" id="search_order" style="margin-left:400px;">조회하기</button> </td>
-    </tr>
-  </table>
-  <input type="hidden" name="stance" value="review">
-  </form>
+  <div class="row">
+    <div class="col-md-12">
+      <h3>다른 회원님들의 감각을 참고해보세요</h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <br>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <form action="" id="order_search_frm" method="get">
+      <table class = "table">
+        <tr>
+          <th>상품명</th>
+          <td> <input type="text" name="product_search" value="" placeholder="상품명으로 검색">
+            <button type="button" name="button" class="btn btn-dark" id="search_order" style="margin-left:400px;">조회하기</button> </td>
+        </tr>
+      </table>
+      </form>
+    </div>
+  </div>
 </div>
 <script type="text/javascript">
 var comment_num = 0;//전역변수
-
-function formatDate(date) {//date 형을 -로 이어진 형태로 바꿔주는 함수
-  var d = new Date(date), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
-  if (month.length < 2) month = '0' + month;
-  if (day.length < 2) day = '0' + day;
-  return [year, month, day].join('-');
-}
 
 var cmt_child = function(){//대댓글을 달 때 동일하게 makecomment 로 넘어간다.
 
@@ -135,46 +153,22 @@ var reply_func = function(element){
     });
 };
 
-$(function(){
-  $('button[name="date_btn"]').click(function(){//오늘, 1주일, 1달 눌렀을 때 날짜 보이는 부분 업데이트하는 리스너
-    var now = new Date();
-    var period = $(this).attr('id');
-
-    $('#to').val(formatDate(now));
-    if(period == "today"){
-      var current = now;
-    }else if(period == "week"){
-      var current = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    }else if(period == "month"){
-      if(now.getMonth() == 11){
-        var current = new Date(now.getFullYear()+1,0,1);
-      }else{
-        var current = new Date(now.getFullYear(),now.getMonth()-1,now.getDate());
-      }
-    }else if(period == "wholeday"){
-      $('#to').val("");
-      var current = "";
-    }
-    $('#from').val(formatDate(current));
-  });
-});
-//카드를 눌렀을 때 모달을 초기화시키는 부분 
+//카드를 눌렀을 때 모달을 초기화시키는 부분
 $(function(){
     var content = "";
     $('.card').click(function(){
 
-      var review_id = $(this).data('id');
+      var review_id = $(this).data('id');//클릭한 리뷰 아이디
       var review_photo = $(this).data('photo');
       var review_text = $(this).data('text');
       var writer = $(this).data('writer');
 
-      $('#whole_text').html("<br>"+review_text);
-      $('#review_id_modal').val(review_id);
-      $('#whole_photo').attr('src',"../database/asset/"+review_photo);
+      $('#whole_text').html("<br>"+review_text);//모달 텍스트 초기화
+      $('#review_id_modal').val(review_id);//모달 아이디 초기화
+      $('#whole_photo').attr('src',"../database/asset/"+review_photo);//모달 그림 초기화
       $('#lookBigTitle').html(writer+"님의 구매후기");
 
       //댓글을 불러온다.
-      //문제 1
       $.ajax({
           async: true,
           type : 'GET',
@@ -183,17 +177,15 @@ $(function(){
           dataType : "text",
           contentType: "application/json; charset=UTF-8",
           success : function(data) {
-            var comment_list = JSON.parse(data);
-            for(var i = 0; i<comment_list.length; i++){
-              //댓글 하나마다 이걸 뿌려줘야함
-              content += '<div id="'+comment_list[i].comment_id+'"><div class="row"><div class="col-md-3 text-center">';
-              content += comment_list[i].writer_name+'</div><div class="col-md-6">'+comment_list[i].comment_text+'</div>';
-              content += '<div class="col-md-3 reply" name="reply" data-parent="'+comment_list[i].comment_id+'" data-writer="'+comment_list[i].writer_name+'" onclick="reply_func(this);">답글달기</div></div></div><br>';
-            }
-            $('#comment_content').html(content);
-            comment_num = comment_list.length;
-            $('#comment_is').html(comment_num+"개의 댓글이 있습니다.");
 
+            $('#comment_div').html('');//일단 비우고
+            //새로 뿌려준다.
+            $('#comment_div').html(data);
+            $('#comment_text').val('');
+
+            comment_num = $('#comment_div').children().length;
+
+            $('#comment_is').html(comment_num+"개의 댓글이 있습니다.");
           },
           error : function(error) {
               console.log("error : " + error);
@@ -273,6 +265,7 @@ $password = "1234";
 // Create connection
 $conn = mysqli_connect($servername, $username, $password,"my_db");
 $conn2 = mysqli_connect($servername, $username, $password,"user_db");
+$conn3 = mysqli_connect($servername, $username, $password,"my_db");
 // Check connection
 if (!$conn) {
   die("Connection failed: " . mysqli_connect_error());
@@ -288,7 +281,7 @@ if (!$conn) {
       $review_result = mysqli_query($conn,$review_sql);
       mysqli_store_result($conn);
       $on_one_page = 8;
-      $btn_count = ceil(mysqli_num_rows($review_result)/$on_one_page);//총 갯수를 다 세고나면 다시 0~3까지로 자르는 쿼리로 바꾼다.
+      $btn_count = ceil(mysqli_num_rows($review_result)/$on_one_page);
 
       $review_sql .= " LIMIT 0, $on_one_page;";
       $review_result = mysqli_query($conn,$review_sql);
@@ -299,18 +292,27 @@ if (!$conn) {
         while($row = mysqli_fetch_assoc($review_result)){//리뷰하나마다 사용자 이름도 가져와야함
           $i ++;
           $writer_email = $row['user_id'];
+
           $get_writer = "select name from user_info where email = '$writer_email';";
           $writer_result = mysqli_query($conn2,$get_writer);
           mysqli_store_result($conn2);
           $writer_row = mysqli_fetch_assoc($writer_result);
+
           $writer_name = $writer_row['name'];
           $review_photo = $row['photo'];
           $review_text = $row['text'];
           $review_id = $row['order_id'];
-          $output = "";
 
+          //이 리뷰에 댓글이 몇개인지 가져와야함
+          $get_comment_count = "select count(*) as cnt from comments where review_id = '$review_id';";
+          $comment_count_result = mysqli_query($conn3,$get_comment_count);
+          mysqli_store_result($conn3);
+          $count_row = mysqli_fetch_assoc($comment_count_result);
+          $comment_count = $count_row['cnt'];
+
+          $output = "";
           $output = '<div class="col-md-3">
-              <div class="text-right pr-3">0개의 댓글</div>
+              <div class="text-right pr-3">'.$comment_count.'개의 댓글</div>
               <div class="card" data-id="'.$review_id.'" data-text="'.$review_text.'" data-photo="'.$review_photo.'" data-writer="'.$writer_name.'">
                 <img class="card-img" src="../database/asset/'.$review_photo.'" alt="">
                 <div class="card-body">
@@ -396,21 +398,18 @@ if (!$conn) {
           </div>
           <div class="row">
             <div id="admin-comment" class="collapse col-md-12">
-              <div class="container" id="comment_content">
+              <div class="container" id="comment_div">
 
               </div>
               <div class="container" id="new_comment">
                 <div class="row">
-                  <div class="col-md-3 text-center" id="whos_writing">
-                    admin
-                  </div>
-                  <div class="col-md-6">
-                    <textarea style="width:100%;" name="name" rows="4" cols="80" placeholder="댓글 달기..." id="comment_text"></textarea>
-                  </div>
-                  <input type="hidden" name="parent_comment" id="parent_comment" value="">
-                  <div class="col-md-3" >
-                    <button type="button" name="comment" id="comment_btn" class="btn btn-info">게시</button>
-                  </div>
+                  <table class="table">
+                    <tr>
+                      <td><?php echo $writer_name;?></td>
+                      <td><textarea name="comment_text" id="comment_text" rows="3" cols="40"></textarea></td>
+                      <td><button type="button" name="comment" id="comment">게시</button></td>
+                    </tr>
+                  </table>
                 </div>
               </div>
             </div>
@@ -420,11 +419,10 @@ if (!$conn) {
     </div>
   </div>
 </div>
-<script type="text/javascript">
 
+<?php include 'footer.php';?>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
 
-
-</script>
-<script type="text/javascript">
-
-</script>
+</html>

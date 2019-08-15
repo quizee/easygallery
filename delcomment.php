@@ -1,12 +1,40 @@
 <?php
+session_start();
+
 $servername = "localhost";
 $username = "root";
 $password = "1234";
 // Create connection
 $conn = mysqli_connect($servername, $username, $password,"my_db");
 
+$comment_id = $_GET['comment_id'];
 $review_id = $_GET['review_id'];
+$writer_id = $_SESSION['email'];
 
+//comment_id 에 해당하는 grp과 seq을 불러온다.
+$get_comment_info = "select grp, seq from comments where comment_id=$comment_id;";
+$result = mysqli_query($conn, $get_comment_info);
+mysqli_store_result($conn);
+if(mysqli_num_rows($result)>0){
+  $row = mysqli_fetch_assoc($result);
+}
+$grp = $row['grp'];
+$seq = $row['seq'];
+
+//내 댓글에 대댓이 있는지 확인한다.
+$check_child = "select comment_id from comments where grp=$grp and seq>$seq;";
+$result = mysqli_query($conn, $check_child);
+mysqli_store_result($conn);
+if(mysqli_num_rows($result)>0){//대댓글이 있다면
+  $update_del_comment = "update comments set writer_name ='', comment_text='' where comment_id=$comment_id;";
+  mysqli_query($conn, $update_del_comment);
+  //삭제된 댓글입니다. 라는 내용이 뜨도록 설정
+}else{//대댓글이 없다면 나만 삭제한다.
+  $del_comment = "delete from comments where comment_id = $comment_id;";
+  mysqli_query($conn, $del_comment);
+}
+
+//삭제된 결과를 반영하는 전체 댓글을 다시 불러온다.
 $get_comment = "select * from comments where review_id='".$review_id."' order by grp asc, seq asc, depth desc;";
 //grp으로 먼저 정렬하고 grp이 같으면 seq로 정렬한다.
 $result = mysqli_query($conn,$get_comment);
@@ -50,4 +78,6 @@ if(mysqli_num_rows($result)>0){
     echo $output;
   }
 }
-?>
+
+
+ ?>

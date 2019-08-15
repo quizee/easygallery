@@ -34,24 +34,20 @@ if (!$user_conn) {
   die("Connection failed: " . mysqli_connect_error());
 }
 
-$my_total_price = 0;
+$GLOBALS['my_total_price'] = 0;
 $send_price = 0;
 
-$sql = "select price, count from carts left join arts on carts.product_id = arts.id where user_id ='".$_SESSION['email']."';";
-$result = mysqli_query($conn, $sql);
-mysqli_store_result($conn);
+// $sql = "select price, count from carts left join arts on carts.product_id = arts.id where user_id ='".$_SESSION['email']."';";
+// $result = mysqli_query($conn, $sql);
+// mysqli_store_result($conn);
+//
+// if(mysqli_num_rows($result)>0){
+//   while($row = mysqli_fetch_assoc($result)){
+//     $my_price = $row['count']*$row['price'];
+//     amount += $my_price;
+//   }
+// }
 
-if(mysqli_num_rows($result)>0){
-  while($row = mysqli_fetch_assoc($result)){
-    $my_price = $row['count']*$row['price'];
-    $my_total_price += $my_price;
-  }
-}
-if($my_total_price>1000000){
-  $test_total_price = 1000000;
-}else{
-  $test_total_price = $my_total_price;
-}
 
 ?>
 <html lang="en">
@@ -78,84 +74,7 @@ if($my_total_price>1000000){
 
 <body>
 <!--여기부터 시작 -->
-<script>
 
-$(function(){
-  $("#kakaopay").click(function(){
-  //  alert('kakao!');
-    var IMP = window.IMP; // 생략가능
-    IMP.init('imp00493624'); // 'iamport' 대신 부여받은 "가맹점 식별코드"를 사용
-    var msg;
-
-    IMP.request_pay({
-        pg : 'kakaopay',
-        pay_method : 'card',
-        merchant_uid : 'merchant_' + new Date().getTime(),
-        name : 'easygallery 작품 결제',
-        amount : <?php echo $test_total_price; ?>,
-        buyer_email : '<?php echo $email; ?>',
-        buyer_name : '<?php echo $money_person; ?>',
-        buyer_tel : '<?php echo $phonenumber; ?>',
-        buyer_addr : '<?php echo $total_address; ?>',
-        buyer_postcode : '<?php echo $post_num; ?>',
-        //m_redirect_url : '/paycomplete.php'
-    }, function(rsp) {
-        if ( rsp.success ) {
-            //[1] 서버단에서 결제정보 조회를 위해 jQuery ajax로 imp_uid 전달하기
-            $.ajax({
-                url: "/payment.php", //cross-domain error가 발생하지 않도록 주의해주세요
-                type: 'POST',
-                dataType: 'text',
-                data: {
-                    imp_uid : rsp.imp_uid,
-                    pay_person : '<?php echo $money_person; ?>',
-                    pay_phonenum : '<?php echo $pay_phonenum; ?>',
-                    pay_email :'<?php echo $email; ?>',
-                    getter:'<?php echo $getter;?>',
-                    getter_phonenum : '<?php echo $getter_phonenum; ?>',
-                    address : '<?php echo $delivery_address; ?>',
-                    delivery_require : '<?php echo $delivery_require; ?>'
-                    //기타 필요한 데이터가 있으면 추가 전달
-                },
-                success: function(data){
-                  location.href='paycomplete.php';
-                },
-                error : function(data){
-                  console.log('error');
-                }
-            });
-            // .done(function(data) {
-            //     //[2] 서버에서 REST API로 결제정보확인 및 서비스루틴이 정상적인 경우
-            //     if ( everythings_fine ) {
-            //         msg = '결제가 완료되었습니다.';
-            //         msg += '\n고유ID : ' + rsp.imp_uid;
-            //         msg += '\n상점 거래ID : ' + rsp.merchant_uid;
-            //         msg += '\결제 금액 : ' + rsp.paid_amount;
-            //         msg += '카드 승인번호 : ' + rsp.apply_num;
-            //
-            //         alert(msg);
-            //     } else {
-            //         //[3] 아직 제대로 결제가 되지 않았습니다.
-            //         //[4] 결제된 금액이 요청한 금액과 달라 결제를 자동취소처리하였습니다.
-            //     }
-            // });
-
-            //성공시 이동할 페이지
-            //
-        } else {
-            msg = '결제에 실패하였습니다.';
-            msg += '에러내용 : ' + rsp.error_msg;
-            //실패시 이동할 페이지
-            location.href='order.php';
-            alert(msg);
-        }
-    });
-
-  });
-});
-
-
-</script>
 <style>
  .bg-active{
    background-color: #FFA500;
@@ -235,10 +154,12 @@ $(function(){
                <th>상품금액</th>
              </tr>
            </thead>
+
            <tbody>
              <?php
-             $ids = $_GET['select_item'];
+             $ids = $_POST['select_item'];
              //넘어온 아이템 목록이 장바구니 디비를 대신한다.
+            // print_r($ids);
              foreach ($ids as $key => $id) {
                $sql = "select name, photo, price from arts where id ='".$id."';";//하나의 아이템에 대해 정보를 가져온다.
                $result = mysqli_query($conn, $sql);
@@ -252,31 +173,101 @@ $(function(){
                  <td>1</td>
                  <td>'.number_format($row['price']).'원</td>
                  </tr>';
-                $my_total_price += $row['price'];
-
-              echo '<input type="hidden" name="select_item[]" value="'.$id.'">';
+                $GLOBALS['my_total_price'] += $row['price'];
+                //echo '<input type="hidden" name="select_item[]" value="'.$id.'">';
              }
 
-             //주문 결제 부터는 무조건 회원용(디비) 장바구니
-             $sql = "select name, photo, price, count from carts left join arts on carts.product_id = arts.id where user_id ='".$_SESSION['email']."';";
-             $result = mysqli_query($conn, $sql);
-             mysqli_store_result($conn);
-
-             if(mysqli_num_rows($result)>0){
-               while($row = mysqli_fetch_assoc($result)){
-                 echo '<tr>
-                   <td><img src="./database/images/'.$row['photo'].'" alt="art image" style="width:60px; height:60px;"></td>
-                   <td>'.$row['name'].'</td>
-                   <td>'.number_format($row['price']).'원</td>
-                   <td>'.$row['count'].'</td>
-                   <td>'.number_format($my_price).'원</td>
-                </tr>';
-               }
+             if($GLOBALS['my_total_price']>1000000){
+               $GLOBALS['test_total_price'] = 1000000;
+             }else{
+               $GLOBALS['test_total_price'] = $GLOBALS['my_total_price'];
              }
              ?>
            </tbody>
          </table>
        </div>
+       <script type="text/javascript">
+
+       $(function(){
+         $("#kakaopay").click(function(){
+         //  alert('kakao!');
+           var IMP = window.IMP; // 생략가능
+           IMP.init('imp00493624'); // 'iamport' 대신 부여받은 "가맹점 식별코드"를 사용
+           var msg;
+
+           IMP.request_pay({
+               pg : 'kakaopay',
+               pay_method : 'card',
+               merchant_uid : 'merchant_' + new Date().getTime(),
+               name : 'easygallery 작품 결제',
+               amount : <?php echo $GLOBALS['test_total_price']; ?>,
+               buyer_email : '<?php echo $email; ?>',
+               buyer_name : '<?php echo $money_person; ?>',
+               buyer_tel : '<?php echo $phonenumber; ?>',
+               buyer_addr : '<?php echo $total_address; ?>',
+               buyer_postcode : '<?php echo $post_num; ?>',
+               //m_redirect_url : '/paycomplete.php'
+           }, function(rsp) {
+               if ( rsp.success ) {
+                   //[1] 서버단에서 결제정보 조회를 위해 jQuery ajax로 imp_uid 전달하기
+                   $.ajax({
+                       url: "/partpayment.php", //cross-domain error가 발생하지 않도록 주의해주세요
+                       type: 'POST',
+                       dataType: 'text',
+                       data: {
+                           imp_uid : rsp.imp_uid,
+                           pay_person : '<?php echo $money_person; ?>',
+                           pay_phonenum : '<?php echo $pay_phonenum; ?>',
+                           pay_email :'<?php echo $email; ?>',
+                           getter:'<?php echo $getter;?>',
+                           getter_phonenum : '<?php echo $getter_phonenum; ?>',
+                           address : '<?php echo $delivery_address; ?>',
+                           delivery_require : '<?php echo $delivery_require; ?>',
+                           select_item :
+                           <?php
+                            $ids = $_POST['select_item'];
+                            echo json_encode($ids);?>,
+                           //기타 필요한 데이터가 있으면 추가 전달
+                       },
+                       success: function(data){
+                         location.href='paycomplete.php';
+                       },
+                       error : function(data){
+                         console.log('error');
+                       }
+                   });
+                   // .done(function(data) {
+                   //     //[2] 서버에서 REST API로 결제정보확인 및 서비스루틴이 정상적인 경우
+                   //     if ( everythings_fine ) {
+                   //         msg = '결제가 완료되었습니다.';
+                   //         msg += '\n고유ID : ' + rsp.imp_uid;
+                   //         msg += '\n상점 거래ID : ' + rsp.merchant_uid;
+                   //         msg += '\결제 금액 : ' + rsp.paid_amount;
+                   //         msg += '카드 승인번호 : ' + rsp.apply_num;
+                   //
+                   //         alert(msg);
+                   //     } else {
+                   //         //[3] 아직 제대로 결제가 되지 않았습니다.
+                   //         //[4] 결제된 금액이 요청한 금액과 달라 결제를 자동취소처리하였습니다.
+                   //     }
+                   // });
+
+                   //성공시 이동할 페이지
+                   //
+               } else {
+                   msg = '결제에 실패하였습니다.';
+                   msg += '에러내용 : ' + rsp.error_msg;
+                   //실패시 이동할 페이지
+                   location.href='order.php';
+                   alert(msg);
+               }
+           });
+
+         });
+       });
+
+
+       </script>
 
        <div class="row">
          <div class="col-md-12">
@@ -381,15 +372,15 @@ $(function(){
            </thead>
            <tbody>
              <tr>
-               <td><?php echo number_format($my_total_price)."원" ?></td>
+               <td><?php echo number_format($GLOBALS['my_total_price'])."원" ?></td>
                <td></td>
-               <td><?php if($my_total_price<300000 && $my_total_price>0){
+               <td><?php if($GLOBALS['my_total_price']<300000 && $GLOBALS['my_total_price']>0){
                       $send_price= 5000;
                     }
                     echo number_format($send_price)."원";
                ?></td>
                <td></td>
-               <td><h4><strong><?php echo number_format($my_total_price+$send_price)."원";?></strong></h4></td>
+               <td><h4><strong><?php echo number_format($GLOBALS['my_total_price']+$send_price)."원";?></strong></h4></td>
              </tr>
            </tbody>
          </table>
