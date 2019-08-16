@@ -241,7 +241,7 @@ $writer_name = $row['name'];//위의 이메일에 따라 글쓴이 이름을 미
       <tr>
         <td><?php echo $writer_name;?></td>
         <td><textarea name="comment_text" id="comment_text" rows="3" cols="40"></textarea></td>
-        <td><button type="button" name="comment" id="comment">게시</button></td>
+        <td><button type="button" class="btn btn-info" name="comment" id="comment">게시</button></td>
       </tr>
     </table>
   </div>

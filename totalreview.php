@@ -12,7 +12,7 @@ $get_name = "select name from user_info where email = '".$_SESSION['email']."';"
 $result = mysqli_query($conn2,$get_name);
 mysqli_store_result($conn2);
 $row = mysqli_fetch_assoc($result);
-$writer_name = $row['name'];//위의 이메일에 따라 글쓴이 이름을 미리 마련해놓는다.
+$login_writer_name = $row['name'];//위의 이메일에 따라 글쓴이 이름을 미리 마련해놓는다.
  ?>
 
 <html lang="en">
@@ -62,56 +62,53 @@ $writer_name = $row['name'];//위의 이메일에 따라 글쓴이 이름을 미
 <script type="text/javascript">
 var comment_num = 0;//전역변수
 
-var cmt_child = function(){//대댓글을 달 때 동일하게 makecomment 로 넘어간다.
-
-  var whos_writing = $('#whos_writing_child').text().trim();//작성자의 이름
-  var comment_text = $('#comment_text_child').val();//작성 내용
-  var review_id = $('#review_id_modal').val();//댓글을 달려는 게시물
-  var parent_comment = $('#parent_comment').val();// 대댓이라면 이 input의 값을 가져온다.
-  var content ="";
-
-  //대댓을 달고 나서 디비의 변화를 보여주는 ajax
-  //문제 3
+var del_comment = function(element){
+  var comment_id = $(element).data('id');
+  var review_id = '<?php echo $review_id;?>';
   $.ajax({
       async: true,
       type : 'GET',
-      data : {'review_id':  review_id, 'whos_writing':whos_writing, 'comment_text':comment_text, 'parent_comment':parent_comment},
-      url : "/admin/makecomment.php",
+      data : {'comment_id':comment_id, 'review_id': review_id},
+      url : "/delcomment.php",
       dataType : "text",
       contentType: "application/json; charset=UTF-8",
       success : function(data) {
-        //디비에 있는 것을 보여주도록 한다.
-        $('#child_comment').html('');//댓글 달기 textarea를 없앤다
-        $('#comment_content').html('');//댓글 전부를 불러오는 div를 비운다.
-        content = "";
-        var comment_list = JSON.parse(data);
-        for(var i = 0; i<comment_list.length; i++){
-
-          if(!comment_list[i].parent_comment){//부모 코멘트가 비어있는 경우
-            //대댓이 아닌 경우 이므로 그냥 요소를 더한다.
-            content += '<div id="'+comment_list[i].comment_id+'"><div class="row"><div class="col-md-3 text-center">';
-            content += comment_list[i].writer_name+'</div><div class="col-md-6">'+comment_list[i].comment_text+'</div>';
-            content += '<div class="col-md-3 reply" name="reply" data-parent="'+comment_list[i].comment_id+'" data-writer="'+comment_list[i].writer_name+'" onclick="reply_func(this);">답글달기</div></div></div><br>';
-            //하나의 댓글 요소가 완성됨
-            var $div = $(content);
-
-            $('#comment_content').append($div);
-          }else{//부모 코멘트가 비어있지 않은 경우 부모 아래 append 한다.
-            var my_depth = parseInt(comment_list[i].comment_depth)*10;
-            content += '<div id="'+comment_list[i].comment_id+'" style="margin-left:'+my_depth+'px;><div class="row"><div class="col-md-3 text-center">';
-            content += 'ㄴ '+comment_list[i].writer_name+'</div><div class="col-md-6">'+comment_list[i].comment_text+'</div>';
-            content += '<div class="col-md-3 reply" name="reply" data-parent="'+comment_list[i].comment_id+'" data-writer="'+comment_list[i].writer_name+'" onclick="reply_func(this);">답글달기</div></div></div><br>';
-            //하나의 댓글 요소가 완성됨
-            var $div = $(content);
-
-            var parent_id = comment_list[i].parent_comment;
-            $("[id='"+parent_id+"']").append($div);
-          }
-        }
-        //$('#comment_content').html(content);
-        comment_num = comment_list.length;
-        //$('#comment_is').html(comment_num+"개의 댓글이 있습니다.");
+        //$('#comcom_textarea').remove();
+        //대댓창을 없앤다.
+        $('#comment_div').html('');//일단 비우고
+        //새로 뿌려준다.
+        $('#comment_div').html(data);
         $('#comment_text').val('');
+        //alert(data);
+
+      },
+      error : function(error) {
+          console.log("error : " + error);
+      }
+    });
+};
+var mod_complete = function(element){
+  //수정완료 버튼을 눌렀을 때
+  //수정된 내용으로 다시 뿌려준다.
+  var comment_id = $(element).data('id');
+  var modified_text = $(element).parent().prev().children().first().val();
+  var review_id = '<?php echo $review_id;?>';
+  //alert(modified_text);
+  $.ajax({
+      async: true,
+      type : 'GET',
+      data : {'comment_id':comment_id, 'comment_text': modified_text, 'review_id': review_id},
+      url : "/modcomment.php",
+      dataType : "text",
+      contentType: "application/json; charset=UTF-8",
+      success : function(data) {
+        //대댓창을 없앤다.
+        $('#comment_div').html('');//일단 비우고
+        //새로 뿌려준다.
+        $('#comment_div').html(data);
+        $('#comment_text').val('');
+        //alert(data);
+
       },
       error : function(error) {
           console.log("error : " + error);
@@ -119,38 +116,82 @@ var cmt_child = function(){//대댓글을 달 때 동일하게 makecomment 로 �
     });
 };
 
-var reply_func = function(element){
-  //답글달기 버튼에 해당 댓글 아이디와 글쓴이 데이터가 담겨져 있다.
-  var parent_comment = $(element).data('parent');
-  var writer = $(element).data('writer');
+var mod_comment = function(element){
+  var comment_id = $(element).data('id');
+  var review_id = '<?php echo $review_id;?>';
+  //var depth = $(element).data('depth');
+  var writer_name = '<?php echo $writer_name;?>';
+
+  //그자리에 있었던 내용을 textarea에 담아야 한다.
+  //grp seq depth 등은 건드리지 않고 딱 description만 건든다.
+  var content_text = $(element).parent().prev().text().trim();
+
   var content = "";
+  content += '<div class="col-md-3 text-center" id="whos_writing_child">';
+  content += writer_name+'</div><div class="col-md-6"><textarea style="width:100%;" name="modify_text" rows="2" cols="30" id="modify_text">';
+  content += content_text+'</textarea>';
+  content += '</div><div class="col-md-3"><button type="button" data-id="'+comment_id+'" name="mod_complete_btn" id="mod_complete_btn"';
+  content += 'class="btn" onclick="mod_complete(this)">수정완료</button></div>';
+  var $div = $(content);
+  $('div[id="'+comment_id+'"]').html('');
+  //해당 댓글을 지우고 그자리에 textarea를 위치시킨다.
+  $('div[id="'+comment_id+'"]').append($div);
+};
 
-  $('#parent_comment').val(parent_comment);//대댓을 달려는 자신의 부모를 hidden input 에 넣는다.
-  //부모보다 한칸 오른쪽으로 밀어난 input을 만든다.
-  //그러기 위해서는 depth 라는 개념이 필요하다.
 
-  //depth를 가져오기위한 ajax
+var cmt_child = function(element){
+  //대댓을 형성하는 부분
+  var id = $(element).data('id');
+  var depth = $(element).data('depth');
+  var grp = $(element).data('grp');
+  var seq = $(element).data('seq');
+  var content = $('#com_com_text').val();
+  var review_id = $('#review_id_modal').val();
+  var writer_name = '<?php echo $login_writer_name;?>';
+  //alert(id);
+
   $.ajax({
       async: true,
       type : 'GET',
-      data : {'parent_comment':parent_comment},
-      url : "/admin/fetchdepth.php",
+      data : {'review_id':  review_id, 'writer_name' : writer_name, 'comment_text' : content, 'grp' : grp, 'seq' : seq, 'depth':depth},
+      url : "/comcom.php",
       dataType : "text",
       contentType: "application/json; charset=UTF-8",
-      success : function(depth) {
-        //부모의 depth를 가져온다.
-        //(부모depth+1) * 10
-        var my_depth = (parseInt(depth)+1)*10;
-        content += '<div class="row" style="margin-left:'+my_depth+'px; id="child_comment""><div class="col-md-3 text-center">';
-        content += 'ㄴ <span id="whos_writing_child">admin</span></div><div class="col-md-6"><textarea style="width:100%;" name="name" rows="2" cols="30" placeholder="대댓글 달기..." id="comment_text_child"></textarea>';
-        content += '</div><div class="col-md-3" ><button type="button" name="comment" id="comment_btn_child" class="btn btn-info" onclick="cmt_child();">게시</button></div></div>';
-        var $div = $(content);
-        $("[id='"+parent_comment+"']").append($div);
+      success : function(data) {
+        //$('#comcom_textarea').remove();
+        //대댓창을 없앤다.
+        $('#comment_div').html('');//일단 비우고
+        //새로 뿌려준다.
+        $('#comment_div').html(data);
+        $('#comment_text').val('');
+        //alert(data);
+
       },
       error : function(error) {
           console.log("error : " + error);
       }
     });
+};
+
+//답글을 위한 textarea가 만들어진다.
+var reply_func = function(element){
+  var id = $(element).data('id');
+  var depth = $(element).data('depth');
+  var grp = $(element).data('grp');
+  var seq = $(element).data('seq');
+  var my_depth = (Number(depth) +1)*12;
+  var writer_name = '<?php echo $writer_name;?>';
+
+  //부모보다 한칸 오른쪽으로 밀어난 input을 만든다.
+  //그러기 위해서는 depth 라는 개념이 필요하다.
+  var content = "";
+  content += '<div class="row" id="comcom_textarea" style="margin-left:'+my_depth+'px;"><div class="col-md-3 text-center" id="whos_writing_child">';
+  content += writer_name+'</div><div class="col-md-6"><textarea style="width:100%;" name="com_com_text" rows="2" cols="30" placeholder="대댓글 달기..." id="com_com_text"></textarea>';
+  content += '</div><div class="col-md-3" ><button type="button" name="comment" id="comment_btn_child"';
+  content += 'data-id="'+id+'" data-depth="'+depth+'" data-grp="'+grp+'" data-seq="'+seq+'" class="btn btn-info" onclick="cmt_child(this)">게시</button></div></div>';
+  var $div = $(content);
+  $('#comcom_textarea').remove();
+  $div.insertAfter('div[id="'+id+'"]');
 };
 
 //카드를 눌렀을 때 모달을 초기화시키는 부분
@@ -173,10 +214,11 @@ $(function(){
           async: true,
           type : 'GET',
           data : {'review_id':  review_id},
-          url : "/admin/fetchcomment.php",
+          url : "/fetchcomment.php",
           dataType : "text",
           contentType: "application/json; charset=UTF-8",
           success : function(data) {
+            mod_comment();
 
             $('#comment_div').html('');//일단 비우고
             //새로 뿌려준다.
@@ -197,34 +239,23 @@ $(function(){
 
   //댓글을 하나 게시했을 때
     $('#comment_btn').click(function(){
-      var whos_writing = $('#whos_writing').text().trim();//작성자의 이름
-      var comment_text = $('#comment_text').val();//작성 내용
-      var review_id = $('#review_id_modal').val();//댓글을 달려는 게시물
-      var parent_comment = "";// 대댓이라면 이 input의 값을 가져온다.
-      //alert(comment_text);
-      //문제 2
+      var review_id = $('#review_id_modal').val();
+      var writer_name = '<?php echo $login_writer_name;?>';
+      var comment_text = $('#comment_text').val();
+
       $.ajax({
           async: true,
           type : 'GET',
-          data : {'review_id':  review_id, 'whos_writing':whos_writing, 'comment_text':comment_text, 'parent_comment':parent_comment},
-          url : "/admin/makecomment.php",
+          data : {'review_id':  review_id, 'writer_name' : writer_name, 'comment_text' : comment_text},
+          url : "/originalcom.php",
           dataType : "text",
           contentType: "application/json; charset=UTF-8",
           success : function(data) {
-            //디비에 있는 것을 보여주도록 한다.
-            $('#comment_content').html('');
-            content = "";
-            var comment_list = JSON.parse(data);
-            for(var i = 0; i<comment_list.length; i++){
-              content += '<div id="'+comment_list[i].comment_id+'"><div class="row"><div class="col-md-3 text-center">';
-              content += comment_list[i].writer_name+'</div><div class="col-md-6">'+comment_list[i].comment_text+'</div>';
-              content += '<div class="col-md-3 reply" name="reply" data-parent="'+comment_list[i].comment_id+'" data-writer="'+comment_list[i].writer_name+'" onclick="reply_func(this);">답글달기</div></div></div><br>';
-            }
-            //댓글 하나마다 이걸 뿌려줘야함
-            $('#comment_content').html(content);
-            comment_num = comment_list.length;
-            //$('#comment_is').html(comment_num+"개의 댓글이 있습니다.");
+            $('#comment_div').html('');//일단 비우고
+            //새로 뿌려준다.
+            $('#comment_div').html(data);
             $('#comment_text').val('');
+            //alert(data);
           },
           error : function(error) {
               console.log("error : " + error);
@@ -254,7 +285,14 @@ $(function(){
 }
 .reply {
   color:gray;
-  font-size: small;
+  cursor: pointer;
+}
+.modify{
+  color:blue;
+  cursor: pointer;
+}
+.delete{
+  color:#8B0000;
   cursor: pointer;
 }
 </style>
@@ -405,9 +443,9 @@ if (!$conn) {
                 <div class="row">
                   <table class="table">
                     <tr>
-                      <td><?php echo $writer_name;?></td>
+                      <td><?php echo $login_writer_name;?></td>
                       <td><textarea name="comment_text" id="comment_text" rows="3" cols="40"></textarea></td>
-                      <td><button type="button" name="comment" id="comment">게시</button></td>
+                      <td><button type="button" name="comment" class="btn btn-info" id="comment_btn">게시</button></td>
                     </tr>
                   </table>
                 </div>
