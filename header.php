@@ -215,7 +215,7 @@
             <a class="nav-link mr-4" href="consult.php">컨설팅</a>
           </li>
           <li class="nav-item" id="review">
-            <a class="nav-link mr-4" href="review.php">리뷰</a>
+            <a class="nav-link mr-4" href="totalreview.php">리뷰</a>
           </li>
           <li class="nav-item" id="news">
             <a class="nav-link" href="news.php">뉴스</a>

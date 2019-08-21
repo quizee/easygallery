@@ -37,7 +37,12 @@ $login_writer_name = $row['name'];//위의 이메일에 따라 글쓴이 이름�
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-12">
-      <h3>다른 회원님들의 감각을 참고해보세요</h3>
+      <br>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <h3>다른 회원님들의 감각을 참고해보세요!</h3>
     </div>
   </div>
   <div class="row">
@@ -64,7 +69,8 @@ var comment_num = 0;//전역변수
 
 var del_comment = function(element){
   var comment_id = $(element).data('id');
-  var review_id = '<?php echo $review_id;?>';
+  var review_id = $('#review_id_modal').val();
+  //console.log("del "+comment_id);
   $.ajax({
       async: true,
       type : 'GET',
@@ -75,8 +81,10 @@ var del_comment = function(element){
       success : function(data) {
         //$('#comcom_textarea').remove();
         //대댓창을 없앤다.
-        $('#comment_div').html('');//일단 비우고
+        $('#comment_div').empty();//일단 비우고
         //새로 뿌려준다.
+        //alert(data);
+        //alert(review_id);
         $('#comment_div').html(data);
         $('#comment_text').val('');
         //alert(data);
@@ -92,7 +100,7 @@ var mod_complete = function(element){
   //수정된 내용으로 다시 뿌려준다.
   var comment_id = $(element).data('id');
   var modified_text = $(element).parent().prev().children().first().val();
-  var review_id = '<?php echo $review_id;?>';
+  var review_id = $('#review_id_modal').val();
   //alert(modified_text);
   $.ajax({
       async: true,
@@ -118,9 +126,9 @@ var mod_complete = function(element){
 
 var mod_comment = function(element){
   var comment_id = $(element).data('id');
-  var review_id = '<?php echo $review_id;?>';
+  var review_id = $('#review_id_modal').val();
   //var depth = $(element).data('depth');
-  var writer_name = '<?php echo $writer_name;?>';
+  var writer_name = '<?php echo $login_writer_name;?>';
 
   //그자리에 있었던 내용을 textarea에 담아야 한다.
   //grp seq depth 등은 건드리지 않고 딱 description만 건든다.
@@ -218,13 +226,15 @@ $(function(){
           dataType : "text",
           contentType: "application/json; charset=UTF-8",
           success : function(data) {
-            mod_comment();
+
+            //mod_comment();
+            //reply_func();
 
             $('#comment_div').html('');//일단 비우고
             //새로 뿌려준다.
             $('#comment_div').html(data);
             $('#comment_text').val('');
-
+            //del_comment();
             comment_num = $('#comment_div').children().length;
 
             $('#comment_is').html(comment_num+"개의 댓글이 있습니다.");
@@ -251,6 +261,8 @@ $(function(){
           dataType : "text",
           contentType: "application/json; charset=UTF-8",
           success : function(data) {
+            //mod_comment();
+            //reply_func();
             $('#comment_div').html('');//일단 비우고
             //새로 뿌려준다.
             $('#comment_div').html(data);
