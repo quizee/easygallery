@@ -79,6 +79,4 @@ if(isset($writer_id)){
   echo "non_member";
 }
 
-
-
  ?>
