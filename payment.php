@@ -19,7 +19,7 @@ $delivery_require = $_POST['delivery_require'];
 $state = "배송 준비중";
 $cancel = "";
 $done = "";
-
+echo $pay_person;
 //장바구니에 있는 것들 한바퀴 돌면서 주문 리스트를 채운다.
 $select_sql = "select id, name, photo, price, count from carts left join arts on carts.product_id = arts.id where user_id ='".$_SESSION['email']."';";
 $result = mysqli_query($conn, $select_sql);
@@ -34,10 +34,17 @@ if(mysqli_num_rows($result)>0){
     $count = $row['count'];
     $pay_price = $row['price']*$row['count'];
     $pay_date = date("Y-m-d");
+
+    //주문 리스트에 넣는 쿼리
     $order_sql = "insert into orders (order_id,product_id,user_id,count,pay_price,pay_date,pay_person,pay_phonenum,pay_email,getter,getter_phonenum,address,
     delivery_require,delivery_state,cancel,done) values ('$order_id','$product_id','$user_id',$count,$pay_price,'$pay_date',
     '$pay_person','$pay_phonenum','$pay_email','$getter','$getter_phonenum','$address','$delivery_require','$state','$cancel','$done')";
     mysqli_query($conn, $order_sql);
+
+    //재고 관리하는 쿼리
+    $update_stock = "update arts set buy_count = buy_count + ".$count." where id='".$product_id."';";
+    mysqli_query($conn,$update_stock);
+    //구매 횟수만 늘리고 재고는 뿌려줄 때 계산한다.
   }
 }
 

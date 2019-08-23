@@ -177,7 +177,7 @@
                 <td>'.$name.'</td>
                 <td>'.$edition.'</td>
                 <td>'.$left_count.'</td>
-                <td><button class = "btn btn-light">수정</button> <button data-id="'.$id.'" data-toggle="modal" class = "btn btn-light open-deleteDialog" data-target="#deleteModal">삭제</button></td>
+                <td><button data-id="'.$id.'" class = "btn btn-light edit-art">수정</button> <button data-id="'.$id.'" data-toggle="modal" class = "btn btn-light open-deleteDialog" data-target="#deleteModal">삭제</button></td>
               </tr>';
           }
         }else{
@@ -208,6 +208,11 @@
 $(document).on("click", ".open-deleteDialog", function () {
    var myArtId = $(this).data('id');
    $("#ArtId").val( myArtId );
+});
+
+$(document).on("click",".edit-art",function(){
+  var artId = $(this).data('id');
+  location.href = "editart.php?artid="+artId;
 });
 
 </script>

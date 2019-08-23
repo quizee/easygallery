@@ -156,6 +156,8 @@
       }
     </script>
     <?php
+    //업데이트하는 부분
+    $art_id = $_GET['artid'];
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
       $art_name = $_POST['art_name'];
@@ -197,17 +199,21 @@
       if (!$conn) {
         die("Connection failed: " . mysqli_connect_error());
       }
-      $sql = "
-      INSERT INTO arts (name, artist_id, horizontal,vertical, size_level, price, edition, material, photo, introduce)
-      VALUES (" . "'" . $art_name . "'" . ",'" . $artist_id . "'" . ",'" . $horizontal . "'" . ",'" . $vertical  . "'" . ",'" . $size_level . "'" . ",'" . $price . "'" .  ",'" . $edition . "'" .  ",'" . $material . "'" . ",'" . $imageName . "'" . ",'" . $introduce. "'". ")";
+
+      $sql = "update arts set id = '$art_id', name='$art_name', artist_id='$artist_id', horizontal = '$horizontal', vertical = '$vertical', size_level='$size_level', price='$price', material = '$material',photo='$imageName',introduce='$introduce' where id='$art_id';";
 
       if(!mysqli_query($conn, $sql)){
         die("Error: " . $sql . "<br>" . mysqli_error($conn));
       }
 
+      $del_sql = "delete from details where art_id = '".$art_id."';";
+      echo '<script>console.log("'.$del_sql.'")</script>';
+      mysqli_query($conn, $del_sql);//지우고 진행한다.
+
+
       for($i=0; $i<count($detail_shots); $i++){
         $pic = $detail_shots[$i];
-        $temp_sql = "insert into details (detail_photo) values ('".$pic."');";
+        $temp_sql = "insert into details (art_id, detail_photo) values ('".$art_id."', '".$pic."');";
         echo '<script>console.log("'.$temp_sql.'")</script>';
         mysqli_query($conn, $temp_sql);
       }
@@ -250,8 +256,17 @@
         <div class="col-md-3">
         </div>
         <div class="col-md-6">
-          <h2>[신규 작품 등록]
-          </h2>
+          <h2><?php
+          if(isset($art_id)){
+           echo "[작품 수정]";
+          }else{
+            echo "[신규 작품 등록]";
+          }
+          $sql = "select * from arts left join artists on arts.artist_id = artists.artist_id where id = '".$art_id."';";
+          $result = mysqli_query($conn,$sql);
+          mysqli_store_result($conn);
+          $row = mysqli_fetch_assoc($result);
+          ?></h2>
           <br>
         </div>
       </div>
@@ -261,38 +276,38 @@
           <form method="post" id="art_frm" name="art_frm" action="" enctype="multipart/form-data">
             <div class="form-group">
               <label for="art_name">작품명:</label>
-              <input type="text" value="" class="form-control" id="art_name" placeholder="작품명 입력" name="art_name" required="작품명을 입력해주세요">
+              <input type="text" value="<?php echo $row['name'];?>" class="form-control" id="art_name" placeholder="작품명 입력" name="art_name" required="작품명을 입력해주세요">
             </div>
             <div class="form-group">
               <label for="artist_name">작가명:</label>
               <div class="input-group">
-              <input type="text" value ="" class="form-control" id="artist_name" readonly placeholder="작가명 입력 ex. Hong Gildong (홍길동)" name="artist_name" required="작가명을 입력해주세요">
+              <input type="text" value ="<?php echo $row['artist_name']; ?>" class="form-control" id="artist_name" readonly placeholder="작가명 입력 ex. Hong Gildong (홍길동)" name="artist_name" required="작가명을 입력해주세요">
               <!-- <button type="button" class="btn btn-light ml-2 mr-1" name="new_artist" data-target="#newArtist" data-toggle="modal">신규 등록</button> -->
               <button type="button" class="btn btn-light"name="exist_artist" data-target="#oldArtist" data-toggle="modal">작가 검색</button>
               </div>
             </div>
             <div class="form-group">
               <h4>작품 소개</h4>
-              <textarea name="introduce" rows="10" form="art_frm" class= "md-textarea form-control" required wrap="hard" placeholder="소개글을 남겨주세요"cols="80"></textarea>
+              <textarea name="introduce" rows="10" form="art_frm" class= "md-textarea form-control" required wrap="hard" placeholder="소개글을 남겨주세요"cols="80"><?php echo $row['introduce']; ?></textarea>
             </div>
             <div class="form-group">
               <label for="price">작품 가격:</label>
-              <input type="text" value=""class="form-control" id="price" onkeypress="validate(event)" placeholder="가격 입력 ex. 49000" name="price" required="가격을 입력해주세요">
+              <input type="text" value="<?php echo $row['price']; ?>"class="form-control" id="price" onkeypress="validate(event)" placeholder="가격 입력 ex. 49000" name="price" required="가격을 입력해주세요">
             </div>
             <div class="form-group">
               <label for="art_size">작품 크기:</label>
               <div class="input-group" id="art_size">
                 <label for="horizontal" class="mr-2">가로(cm)</label>
-                <input type="text" value="" class="form-control" onkeypress="validate(event)" id="horizontal" name="horizontal"required>
+                <input type="text" value="<?php echo $row['horizontal']; ?>" class="form-control" onkeypress="validate(event)" id="horizontal" name="horizontal"required>
                 <label for="vertical" class="ml-2 mr-2">세로(cm)</label>
-                <input type="text" value = "" class="form-control" id="vertical" onkeypress="validate(event)" name="vertical" required>
+                <input type="text" value = "<?php echo $row['vertical']; ?>" class="form-control" id="vertical" onkeypress="validate(event)" name="vertical" required>
               </div>
             </div>
             <div class="form-group">
               <label for="art_photo">작품 사진(대표사진):</label>
               <div class="input-group" id="art_photo">
                 <div class="custom-file">
-                  <input id="file_name" value="" class="form-control readonly" name="file_name" value="작품 사진을 업로드해주세요." style="display:inline;">
+                  <input id="file_name" value="<?php echo $row['photo']; ?>" class="form-control readonly" name="file_name" value="작품 사진을 업로드해주세요." style="display:inline;">
                   <div class="fileRegiBtn mt-5">
                   <label for="pic" class="btn btn-light">파일등록하기</label>
                   <input type="file" class="custom-file-input" id="pic"
@@ -302,7 +317,12 @@
               </div>
               <br>
               <div class="selectCover">
-                <img id="cover" src="https://c-lj.gnst.jp/public/img/common/noimage.jpg?20190112050045" style="width: 100%; height: 500px;"/>
+                <img id="cover" src="<?php
+                if(isset($row['photo'])){
+                  echo '../database/images/'.$row['photo'];
+                }else{
+                  echo 'https://c-lj.gnst.jp/public/img/common/noimage.jpg?20190112050045';
+                }?>" style="width: 100%; height: 500px;"/>
               </div>
             </div>
             <div class="form-group">
@@ -317,28 +337,58 @@
                 </div>
               </div>
               <br>
+              <?php
+              $sql = "select * from details where art_id='".$art_id."';";
+              $result = mysqli_query($conn,$sql);
+              mysqli_store_result($conn);
+               ?>
               <ul id="fileList">
+                <?php
+                if(mysqli_num_rows($result)>0){
+                  $x = 0;
+                  while($row = mysqli_fetch_assoc($result)){
+                    echo "<li>File ".($x+1).": ".$row['detail_photo']."</li>";
+                    $x++;
+                  }
+                }
+                 ?>
 
               </ul>
 
               <div class="form-group">
                 <div id="detail_photos_input">
+                  <?php
+                  $sql = "select * from details where art_id='".$art_id."';";
+                  $result = mysqli_query($conn,$sql);
+                  mysqli_store_result($conn);
 
+                  if(mysqli_num_rows($result)>0){
+                    while($row = mysqli_fetch_assoc($result)){
+                      echo '<input type="hidden" name="detail_shots[]" value="'.$row['detail_photo'].'">';
+                    }
+                  }
+                   ?>
                 </div>
-                <input type="hidden" id="input_count" name="input_count" value="" >
+                <input type="hidden" id="input_count" name="input_count" value="<?php echo mysqli_num_rows($result); ?>" >
               </div>
+              <?php
+              $sql = "select * from arts left join artists on arts.artist_id = artists.artist_id where id = '".$art_id."';";
+              $result = mysqli_query($conn,$sql);
+              mysqli_store_result($conn);
+              $row = mysqli_fetch_assoc($result);
+               ?>
 
             <div class="form-group">
               <label for="edition">제한 에디션 수:</label>
-              <input type="number" value="" class="form-control" id="price" onkeypress="validate(event)" placeholder="에디션 수 입력" name="edition" required>
+              <input type="number" value="<?php echo $row['edition'];?>" class="form-control" id="price" onkeypress="validate(event)" placeholder="에디션 수 입력" name="edition" required>
             </div>
             <div class="form-group">
               <label for="material">소재:</label>
-              <input type="text" value="" class="form-control" id="material" placeholder="소재 입력" name="material" required>
+              <input type="text" value="<?php echo $row['material'];?>" class="form-control" id="material" placeholder="소재 입력" name="material" required>
             </div>
-            <input type="hidden" id="artistId" name="artistId" value="">
+            <input type="hidden" id="artistId" name="artistId" value="<?php echo $row['artist_id']; ?>">
             <div class="text-center mb-4">
-              <button type="submit" id="submit_btn" class="btn btn-dark">작품등록</button>
+              <button type="submit" id="submit_btn" class="btn btn-dark">수정완료</button>
             </div>
           </form>
           </div>
