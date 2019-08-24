@@ -128,7 +128,7 @@ document.getElementById(param).classList.add('textdecoration2');
 
 
     <!---->
-    <div class="row">
+    <div class="row" id= "load_data">
       <?php
       //echo $_GET['order'];
       $servername = "localhost";
@@ -238,6 +238,9 @@ document.getElementById(param).classList.add('textdecoration2');
       //
        ?>
       </div>
+      <div class="row" id="load_data_msg">
+
+      </div>
       <div class="row">
         <div class="col-md-12">
           <br>
@@ -245,6 +248,22 @@ document.getElementById(param).classList.add('textdecoration2');
       </div>
     </div>
   </div>
+  <button type="button" class="button btn-info" name="button">등록된 작품이 없습니다.</button>
+  <script type="text/javascript">
+    $(document).ready(funtion(){
+      var limit = 16;
+      var start = 0;
+      var action = 'inactive';
+
+      function load_art_data(limit,start){
+        $.ajax({
+
+
+        });
+      }
+
+    });
+  </script>
   <script type="text/javascript">
   $('button[name="good_btn"]').click(function(){
     var login =

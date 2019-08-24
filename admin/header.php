@@ -8,9 +8,6 @@
       <div class="col-md-7 text-right">
         <ul class="nav text-white">
           <li class="nav-item">
-            <a class="nav-link text-white" href="/admin/index.php?stance=member">회원관리</a>
-          </li>
-          <li class="nav-item">
           <div class="dropdown">
             <button class="btn dropdown-toggle text-white" type="button" data-toggle="dropdown">작품/작가 등록
             <span class="caret"></span></button>
@@ -21,15 +18,11 @@
           </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-white" href="/admin/index.php?stance=review">리뷰/문의 관리</a>
+            <a class="nav-link text-white" href="/admin/index.php?stance=review">리뷰 관리</a>
           </li>
           <li class="nav-item">
             <a class="nav-link text-white" href="/admin/index.php?stance=order">주문 관리</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link text-white" href="/admin/index.php?stance=theme">테마 선정</a>
-          </li>
-
         </ul>
       </div>
     </div>

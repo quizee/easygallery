@@ -200,6 +200,10 @@
         $result = mysqli_query($conn, $sql_search);
         mysqli_store_result($conn);
         $total_order = mysqli_num_rows($result);
+
+        //echo $total_order;
+        //echo $sql_search;
+
         $button_count = ceil($total_order/$on_one_page);
         //echo "total_number: ".$total_order." ";
         //echo "button_count ".$button_count;

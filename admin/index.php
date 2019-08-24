@@ -34,20 +34,14 @@
   <div class="container-fluid">
   <?php
     switch($_GET['stance']){
-      case "member":
-        include "member.php";
-        break;
       case "order":
         include "order.php";
         break;
       case "review":
         include "review.php";
         break;
-      case "theme":
-        include "testcomment.php";
-        break;
       default :
-        include "member.php";
+        include "order.php";
         break;
     }
    ?>

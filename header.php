@@ -137,10 +137,6 @@
             </div>
           </form>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn">아이디 찾기</button>
-          <button type="button" class="btn">비밀번호 찾기</button>
-        </div>
       </div>
     </div>
   </div>
