@@ -112,11 +112,6 @@
                   <button type="button" class="btn btn-sm btn-light" onclick="stay();">아니오</button>
                 </div>
 
-                <!-- <div class="col-md-6 text-center"> -->
-
-                <!-- </div> -->
-                <!-- <div class="col-md-6 text-center"> -->
-                <!-- </div> -->
               </div>
             </div>
           </div>
@@ -185,13 +180,11 @@
     </div>
     <div class="container">
       <div class="col text-center">
-      <a href="/admin/addart.php">
-      <button type="button" class= "btn btn-light" name="select_all" onclick="location.href('/admin/addartist.php')">새 작품 등록하기</button>
+      <a href="/admin/addartist.php">
+      <button type="button" class= "btn btn-light" name="select_all" onclick="location.href('/admin/addartist.php')">신규 작가 등록하기</button>
       </a>
       </div>
     </div>
-
-
 
 </div>
 </div>
@@ -208,7 +201,7 @@ $(document).on("click", ".open-deleteDialog", function () {
 
 $(document).on("click",".edit-art",function(){
   var artId = $(this).data('id');
-  location.href = "editart.php?artistid="+artId;
+  location.href = "editartist.php?artistid="+artId;
 });
 
 </script>

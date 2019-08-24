@@ -90,44 +90,18 @@
     </style>
 
     <br>
-    <script>
-      function writeArtistId(artistId, artistName){
-        document.getElementById('artistId').value = artistId;
-        document.getElementById('artist_name').value = artistName;
-        $('#oldArtist').modal('hide');//hide modal
-        console.log("선택한 목록"+ document.getElementById('artist_name').value);
-      }
-    </script>
+
     <?php
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
-      $art_name = $_POST['art_name'];
-      $artist_id= $_POST['artistId'];
-      $introduce = $_POST['introduce'];
-      $price = $_POST['price'];
-      $horizontal = $_POST['horizontal'];
-      $vertical= $_POST['vertical'];
-      $size = $horizontal * $vertical;
 
-      //echo $art_name." ".$artist_id." ".$introduce." ".$price." ".$size;
-      if($size>0 && $size<=500){
-        $size_level = 1;
-      }else if($size>500 && $size<=1500){
-        $size_level = 2;
-      }else if($size>1500 && $size<=5000){
-        $size_level = 3;
-      }else if($size>5000 && $size<=10000){
-        $size_level = 4;
-      }else if($size>10000){
-        $size_level = 5;
-      }
+      $artist_name = $_POST['artist_name'];
+      $artist_introduce = $_POST['artist_introduce'];
+      $carrier = $_POST['carrier'];
+      $birth = $_POST['birth'];
+      $death = $_POST['death'];
 
-      $edition = $_POST['edition'];
-      $material = $_POST['material'];
-
-      $imageName = $_POST['file_name'];//대표 사진
-      $count_details = $_POST['input_count'];
-      $detail_shots = $_POST['detail_shots'];
+      $artist_photo = $_POST['file_name'];
 
       $servername = "localhost";
       $username = "root";
@@ -140,24 +114,24 @@
       if (!$conn) {
         die("Connection failed: " . mysqli_connect_error());
       }
-      $sql = "
-      INSERT INTO arts (name, artist_id, horizontal,vertical, size_level, price, edition, material, photo, introduce)
-      VALUES (" . "'" . $art_name . "'" . ",'" . $artist_id . "'" . ",'" . $horizontal . "'" . ",'" . $vertical  . "'" . ",'" . $size_level . "'" . ",'" . $price . "'" .  ",'" . $edition . "'" .  ",'" . $material . "'" . ",'" . $imageName . "'" . ",'" . $introduce. "'". ")";
-
+      if($death == ""){
+        $sql = "
+        UPDATE artists SET artist_name = '$artist_name', carrier = '$carrier', artist_introduce = '$artist_introduce',
+        birth = '$birth', death = NULL, artist_photo = '$artist_photo' where artist_id = '$artist_id';";
+      }else{
+        $sql = "
+        UPDATE artists SET artist_name = '$artist_name', carrier = '$carrier', artist_introduce = '$artist_introduce',
+        birth = '$birth', death = '$death', artist_photo = '$artist_photo' where artist_id = '$artist_id';";
+      }
+    
       if(!mysqli_query($conn, $sql)){
         die("Error: " . $sql . "<br>" . mysqli_error($conn));
       }
 
-      for($i=0; $i<count($detail_shots); $i++){
-        $pic = $detail_shots[$i];
-        $temp_sql = "insert into details (detail_photo) values ('".$pic."');";
-        echo '<script>console.log("'.$temp_sql.'")</script>';
-        mysqli_query($conn, $temp_sql);
-      }
-
       //한장짜리
       $tmpFile = $_FILES['pic']['tmp_name'];
-      $newFile = '/var/www/html/database/images/'.$_FILES['pic']['name'];
+      echo '<script>console.log("'.$tmpFile.'")</script>';
+      $newFile = '/var/www/html/database/artists/'.$_FILES['pic']['name'];
       $result = move_uploaded_file($tmpFile, $newFile);
 
       if ($result) {
@@ -165,25 +139,8 @@
       } else {
            echo '<script>console.log("업로드 실패")</script>';
       }
-      //여러장짜리
-      $total = count($_FILES['pic_detail']['name']);
-      // Loop through each file
-      for( $i=0 ; $i < $total ; $i++ ) {
-        //Get the temp file path
-        $tmpFilePath = $_FILES['pic_detail']['tmp_name'][$i];
 
-        //Make sure we have a file path
-        if ($tmpFilePath != ""){
-          //Setup our new file path
-          $newFilePath = "/var/www/html/database/details/" . $_FILES['pic_detail']['name'][$i];
-          if(move_uploaded_file($tmpFilePath, $newFilePath)) {
-            echo "<script>console.log('success')</script>";
-          }else{
-            echo "<script>console.log('fail')</script>";
-          }
-        }
-      }
-      header('Location: art.php');
+      header('Location: artist.php');
       exit();
       }
       ?>
@@ -193,7 +150,7 @@
         <div class="col-md-3">
         </div>
         <div class="col-md-6">
-          <h2>[신규 작품 등록]
+          <h2>[신규 작가 등록]
           </h2>
           <br>
         </div>
@@ -203,39 +160,34 @@
         <div class="col-md-6">
           <form method="post" id="art_frm" name="art_frm" action="" enctype="multipart/form-data">
             <div class="form-group">
-              <label for="art_name">작품명:</label>
-              <input type="text" value="" class="form-control" id="art_name" placeholder="작품명 입력" name="art_name" required="작품명을 입력해주세요">
-            </div>
-            <div class="form-group">
               <label for="artist_name">작가명:</label>
-              <div class="input-group">
-              <input type="text" value ="" class="form-control" id="artist_name" readonly placeholder="작가명 입력 ex. Hong Gildong (홍길동)" name="artist_name" required="작가명을 입력해주세요">
-              <!-- <button type="button" class="btn btn-light ml-2 mr-1" name="new_artist" data-target="#newArtist" data-toggle="modal">신규 등록</button> -->
-              <button type="button" class="btn btn-light"name="exist_artist" data-target="#oldArtist" data-toggle="modal">작가 검색</button>
-              </div>
+              <input type="text" value="" class="form-control" id="artist_name" placeholder="ex) Lee Jeeyoon(이지윤)" name="artist_name" required="작가명을 입력해주세요">
             </div>
             <div class="form-group">
-              <h4>작품 소개</h4>
-              <textarea name="introduce" rows="10" form="art_frm" class= "md-textarea form-control" required wrap="hard" placeholder="소개글을 남겨주세요"cols="80"></textarea>
+              <h4>작가 소개</h4>
+              <textarea name="artist_introduce" rows="10" form="art_frm" class= "md-textarea form-control" required wrap="hard" placeholder="작가의 소개글을 남겨주세요"cols="80"></textarea>
             </div>
             <div class="form-group">
-              <label for="price">작품 가격:</label>
-              <input type="text" value=""class="form-control" id="price" onkeypress="validate(event)" placeholder="가격 입력 ex. 49000" name="price" required="가격을 입력해주세요">
+              <h4>작가 경력</h4>
+              <textarea name="carrier" rows="10" form="art_frm" class= "md-textarea form-control" required wrap="hard" placeholder="ex) 2015 가나아트 컨템포러리 초대전, 서울
+2013 인사아트센터 초대전, 서울
+2011 가나아트 컨템포러리 초대전, 서울
+2009 인사아트센터 초대전, 서울"cols="80"></textarea>
             </div>
             <div class="form-group">
-              <label for="art_size">작품 크기:</label>
+              <label for="art_size">작가 활동시기:</label>
               <div class="input-group" id="art_size">
-                <label for="horizontal" class="mr-2">가로(cm)</label>
-                <input type="text" value="" class="form-control" onkeypress="validate(event)" id="horizontal" name="horizontal"required>
-                <label for="vertical" class="ml-2 mr-2">세로(cm)</label>
-                <input type="text" value = "" class="form-control" id="vertical" onkeypress="validate(event)" name="vertical" required>
+                <label for="horizontal" class="mr-2">출생년도</label>
+                <input type="text" value="" class="form-control" onkeypress="validate(event)" id="horizontal" name="birth"required>
+                <label for="vertical" class="ml-2 mr-2">사망년도</label>
+                <input type="text" value = "" class="form-control" id="vertical" onkeypress="validate(event)" name="death" placeholder="생존시 빈칸으로">
               </div>
             </div>
             <div class="form-group">
-              <label for="art_photo">작품 사진(대표사진):</label>
+              <label for="art_photo">작가 사진(대표사진):</label>
               <div class="input-group" id="art_photo">
                 <div class="custom-file">
-                  <input id="file_name" value="" class="form-control readonly" name="file_name" value="작품 사진을 업로드해주세요." style="display:inline;">
+                  <input id="file_name" value="" class="form-control readonly" name="file_name" value="작가 사진을 업로드해주세요." style="display:inline;">
                   <div class="fileRegiBtn mt-5">
                   <label for="pic" class="btn btn-light">파일등록하기</label>
                   <input type="file" class="custom-file-input" id="pic"
@@ -248,43 +200,10 @@
                 <img id="cover" src="https://c-lj.gnst.jp/public/img/common/noimage.jpg?20190112050045" style="width: 100%; height: 500px;"/>
               </div>
             </div>
-            <div class="form-group">
-              <label for="detail_photo">상세 사진:</label>
-              <div class="input-group" id="detail_photo">
-                <div class="custom-file">
-                  <input id="detail_file_name" class="form-control readonly" name="detail_file_name" value="작품 상세 사진을 업로드해주세요." style="display:inline;">
-                  <div class="fileRegiBtn mt-5">
-                  <label for="pic_detail" class="btn btn-light">파일등록하기</label>
-                  <input name="pic_detail[]" id="pic_detail" class="custom-file-input" type="file" multiple/>
-                  </div>
-                </div>
-              </div>
-              <br>
-              <ul id="fileList">
-
-              </ul>
-
-              <div class="form-group">
-                <div id="detail_photos_input">
-
-                </div>
-                <input type="hidden" id="input_count" name="input_count" value="" >
-              </div>
-
-            <div class="form-group">
-              <label for="edition">제한 에디션 수:</label>
-              <input type="number" value="" class="form-control" id="price" onkeypress="validate(event)" placeholder="에디션 수 입력" name="edition" required>
-            </div>
-            <div class="form-group">
-              <label for="material">소재:</label>
-              <input type="text" value="" class="form-control" id="material" placeholder="소재 입력" name="material" required>
-            </div>
-            <input type="hidden" id="artistId" name="artistId" value="">
             <div class="text-center mb-4">
-              <button type="submit" id="submit_btn" class="btn btn-dark">작품등록</button>
+              <button type="submit" id="submit_btn" class="btn btn-dark">작가 등록</button>
             </div>
           </form>
-          </div>
         </div>
       </div>
 
@@ -301,50 +220,6 @@
         reader.readAsDataURL(input.files[0]);
       }
     }
-
-    var list = document.getElementById('fileList');
-    var div = document.getElementById('detail_photos_input');
-
-    function readMulti(input){
-      if (list.hasChildNodes()) {
-  	     list.innerHTML="";
-       }
-       if (div.hasChildNodes()) {
-   	     div.innerHTML="";
-        }
-
-       $('#detail_file_name').val(input.files[0].name+" 외 "+(input.files.length-1)+"장");
-        //for every file...
-        for (var x = 0; x < input.files.length; x++) {
-          //add to list
-          var li = document.createElement('li');
-          li.innerHTML = 'File ' + (x + 1) + ':  ' + input.files[x].name;
-          list.append(li);
-      }
-
-      document.getElementById('input_count').value = input.files.length;
-
-      for (var x = 0; x < input.files.length; x++) {
-        var hidden_input = document.createElement('input');
-        hidden_input.setAttribute("type","hidden");
-        hidden_input.setAttribute("name","detail_shots[]");
-        //var y = x+1;
-        //var hidden_name = y+"_id";
-        //hidden_input.setAttribute("name",hidden_name);
-        hidden_input.setAttribute("value",input.files[x].name);
-        div.append(hidden_input);
-
-        console.log(input.files[x].name);
-        //console.log(hidden_input.id);
-        //document.getElementById(y).value = input.files[x].name;
-        //console.log(document.getElementById(y).value);
-        //console.log(document.getElementById('photo'+x).value);
-      }
-    }
-
-    $("#pic_detail").change(function(){
-      readMulti(this);
-    });
 
     $("#pic").change(function(){
       readURL(this);
